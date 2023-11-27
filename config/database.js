@@ -11,5 +11,5 @@
 ******************************************************************************
 **/
 module.exports = {
-    url : "mongodb+srv://harshithareddysalguti:Harshitha0212@hcluster.8xd6oki.mongodb.net/sales"
+    url : "mongodb+srv://harshithareddysalguti:Harshitha0212@hcluster.8xd6oki.mongodb.net/sales?retryWrites=true&w=majority"
 };
