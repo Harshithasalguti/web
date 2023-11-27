@@ -1,36 +1,17 @@
-
-/******************************************************************************
-***
-* ITE5315 – Assignment 4
-* I declare that this assignment is my own work in accordance with Humber Academic Policy.
-* No part of this assignment has been copied manually or electronically from any other source
-* (including web sites) or distributed to other students.
-*
-* Name: Harshitha Reddy Salguti Student ID: N01537582 Date: 26-11-2023
-*
-*
-******************************************************************************
-**/
 var express  = require('express');
 var mongoose = require('mongoose');
 var app      = express();
 var database = require('./config/database');
 var path = require('path');
 var bodyParser = require('body-parser');         // pull information from HTML POST (express4)
-
 const exphbs = require('express-handlebars');
-
 const hbs = exphbs.create({ extname: '.hbs' });
-
-
 // Handlebars setup
-app.use(express.static('public'));
 
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
+var port = process.env.PORT || 8000;
 
- 
-var port     = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
@@ -38,23 +19,22 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 
 mongoose.connect(database.url);
 app.set('views', path.join(__dirname, 'views'));
-var Sale = require('./models/sales');
-app.get('/', (req, res) => {
-    res.render('main', { title: 'Home' });
-});
+var Sale = require('./models/invoice');
 
+
+app.get('/', (req, res) => {
+    res.render('home');
+});
 
 app.get('/api/sales', async (req, res) => {
     try {
         const sales = await Sale.find();
-        res.render('sales', { sales }); // Render 'sales.hbs' passing sales data
+        res.render('invoice', { title: 'Sales Page', sales }); // Render 'sales.hbs' passing sales data
     } catch (err) {
         console.error(err); // Log the error for debugging purposes
         res.status(500).send('Error retrieving sales data');
     }
 });
-
-
 
 
 // Route to search for sales records by product line
@@ -159,38 +139,29 @@ app.get('/api/sales/:invoiceId', async (req, res) => {
     }
 });
 
-app.get('/api/sales', async (req, res) => {
-    try {
-        const invoices = await Sale.find();
-        res.json({ invoices });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error retrieving invoice data');
-    }
-});
 
 // Route to show a specific invoice by _id or invoiceID
-app.get('/api/sales/:invoiceId', async (req, res) => {
-    try {
-        const invoiceId = req.params.invoiceId;
-        const invoice = await Sale.findOne({ "Invoice ID": invoiceId });
+// app.get('/api/sales/:invoiceId', async (req, res) => {
+//     try {
+//         const invoiceId = req.params.invoiceId;
+//         const invoice = await Sale.findOne({ "Invoice ID": invoiceId });
 
-        if (!invoice) {
-            return res.status(404).send("Invoice not found");
-        }
+//         if (!invoice) {
+//             return res.status(404).send("Invoice not found");
+//         }
 
-        res.json({ invoice });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error retrieving invoice data');
-    }
-});
+//         res.json({ invoice });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Error retrieving invoice data');
+//     }
+// });
 
 
 // Route to insert a new invoice
 app.post('/api/sales', async (req, res) => {
     try {
-        const newSale = new Sale(req.body); 
+        const newSale = new Sale(req.body); // Assuming req.body contains the necessary fields for a new Sale
 
         await newSale.save();
 
@@ -248,8 +219,17 @@ app.put('/api/sales/:invoiceId', async (req, res) => {
     }
 });
 
+app.get('/api/sales', async (req, res) => {
+    try {
+        const invoices = await Sale.find();
+        res.json({ invoices });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving invoice data');
+    }
+});
+
+
+
 app.listen(port);
 console.log("App listening on port : " + port);
-
-
-
